@@ -1,0 +1,63 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DB_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Vehicle {
+  id            String         @id @default(cuid())
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  model         String?
+  licensePlate  String?
+  vehicleShifts VehicleShift[]
+}
+
+model Shift {
+  id           String       @id @default(cuid())
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  endTime      DateTime?
+  startTime    DateTime?
+  shiftCycles  ShiftCycle[] @relation(name: "ShiftOnShiftCycles")
+  shiftCycle   ShiftCycle?  @relation(name: "ShiftCycleOnShifts", fields: [shiftCycleId], references: [id])
+  shiftCycleId String?
+}
+
+model Driver {
+  id            String        @id @default(cuid())
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  name          String?
+  licenseNumber String?
+  driverShifts  DriverShift[]
+}
+
+model VehicleShift {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  vehicle   Vehicle? @relation(fields: [vehicleId], references: [id])
+  vehicleId String?
+}
+
+model DriverShift {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  driver    Driver?  @relation(fields: [driverId], references: [id])
+  driverId  String?
+}
+
+model ShiftCycle {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  name      String?
+  shift     Shift?   @relation(name: "ShiftOnShiftCycles", fields: [shiftId], references: [id])
+  shiftId   String?
+  shifts    Shift[]  @relation(name: "ShiftCycleOnShifts")
+}
